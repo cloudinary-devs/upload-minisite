@@ -1,0 +1,54 @@
+{
+    "minisite_config": {
+        "_comment1": "Edit this JSON file and locate it under a folder uploads_ministe with a descriptive name. The folder should be created at the top level.",
+        "_comment2": "Assuming the public_id of the JSON is https://greatbiz-res.cloudinary.com/raw/upload/uploads_minisite/agencies/best-one.json",
+        "_comment3": "then the upload minisite would be available at https://upload-minisite.cloudinary.us/greatbiz/agencies/best-one",
+        
+        "_troubleshooting1": "Put the JSON URL in a web browser and make sure you that is is fetched",
+        "_troubleshooting2": "Make sure you are using images (backgroundImage, opengraphImage) from your own environment only",
+
+        "backgroundImage": "https://cloudinary-marketing-res.cloudinary.com/f_auto,q_auto,w_2000/website_2021/cloudinary_web_brand_assets_hero_background.png",
+        "opengraphImage": "https://cloudinary-marketing-res.cloudinary.com/c_thumb,f_auto,g_auto,h_630,q_auto,w_1200/website_2021/cloudinary_web_brand_assets_hero_background.png",
+        "title": "Hello upload!",
+        "titleStyle": "color: #5A616A",
+        "subtitle": "Share your assets here",
+        "subtitleStyle": "color: #5A616A; font-family: Sofia, 'Times New Roman', Times, serif;",
+        "googleFont": "Sofia"
+    },
+    "upload_widget_config": {
+        "_comment1": "To fully configure the upload widget, please see the reference in https://cloudinary.com/documentation/upload_widget_reference",
+        "_comment2": "A good overview of the upload widget capabilities is in https://cloudinary.com/documentation/upload_widget",
+        "_comment3": "Create an unsigned upload_preset to use below. Doc: https://cloudinary.com/documentation/upload_presets#managing_upload_presets_using_the_settings_ui",
+
+        "uploadPreset": "agent-y",
+        "sources": ["local", "url", "camera", "google_drive", "dropbox", "shutterstock", "getty", "istock", "unsplash"],
+        "showAdvancedOptions": true,
+        "cropping": true,
+        "showSkipCropButton": true,
+        "multiple": false,
+        "maxFiles": 20,
+        "defaultSource": "local",
+        "styles": {
+            "palette": {
+                "window": "#FFFFFF",
+                "windowBorder": "#90A0B3",
+                "tabIcon": "#0078FF",
+                "menuIcons": "#5A616A",
+                "textDark": "#000000",
+                "textLight": "#FFFFFF",
+                "link": "#0078FF",
+                "action": "#FF620C",
+                "inactiveTabIcon": "#0E2F5A",
+                "error": "#F44235",
+                "inProgress": "#0078FF",
+                "complete": "#20B832",
+                "sourceBg": "#E4EBF1"
+            },
+            "fonts": {
+                "default": {
+                    "active": true
+                }
+            }
+        }
+    }
+}
