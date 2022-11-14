@@ -21,18 +21,20 @@ Use the [console](https://cloudinary.com/console/settings/upload) to define the 
  - **Signing Mode** - Change to unsigned. This allows unauthenticated users to upload assets.
  - **Folder** - Specify the Media Library folder you would like to have the uploaded assets. You don’t need to create this folder ahead, Cloudinary will create it for you upon the first upload.
 
-### 2. Configure the minisite
-- Edit the template sample_uw.json from this repo. At a minimum, edit these fields:
-  - Title
-  - Subtitle
-  - uploadPreset - the one you used in the previous step
+### 2. Configuring the minisite
+Edit the template sample_uw.json from this repo. At a minimum, edit these fields:
+ - Title
+ - Subtitle
+ - uploadPreset - the one you used in the previous step
 
 There are plenty of additional options to adjust like colors, fonts, and upload sources in the template.
 Save the template using a meaningful public name, for example, “photographers.json”. Any name is valid, as long as the extension is kept “.json”.
 Create a folder called “uploads_ministe” on the top-level folder of your environment. Upload the JSON file to this folder.
 Adjust the public_id of the JSON file to match the folder structure, e.g. “uploads_ministe/photographers.json”.
 
- - Make sure that you can access the JSON from a web browser as 
+### 3. Testing
+Make sure that you can access the JSON from a web browser as 
 ht<span>tps://\<your env id\>-res.cloudinary.com/raw/upload/uploads_minisite/photographers.json
 
- - Immediately see the results at ht<span>tps://upload-minisite.cloudinary.us/\<your environment id\>/photographers.
+### 4. Distributing
+Immediately see the results at ht<span>tps://upload-minisite.cloudinary.us/\<your environment id\>/photographers.
