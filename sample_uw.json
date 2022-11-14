@@ -4,7 +4,7 @@
         "_comment2": "Assuming the public_id of the JSON is https://greatbiz-res.cloudinary.com/raw/upload/uploads_minisite/agencies/best-one.json",
         "_comment3": "then the upload minisite would be available at https://upload-minisite.cloudinary.us/greatbiz/agencies/best-one",
         
-        "_troubleshooting1": "Put the JSON URL in a web browser and make sure you that is is fetched",
+        "_troubleshooting1": "Put the JSON URL in a web browser and make sure you that it is fetched",
         "_troubleshooting2": "Make sure you are using images (backgroundImage, opengraphImage) from your own environment only",
 
         "backgroundImage": "https://cloudinary-marketing-res.cloudinary.com/f_auto,q_auto,w_2000/website_2021/cloudinary_web_brand_assets_hero_background.png",
