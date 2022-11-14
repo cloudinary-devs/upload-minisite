@@ -1,0 +1,120 @@
+"use strict";
+export default {
+    async fetch(request, env) {
+        return await handleRequest(request).catch(
+            (err) => new Response('This link doesn\'t work. There is nothing much we can say about it', {
+                        status: 400,
+                        headers: {
+                            'cache-control': 'public, max-age=600, immutable',
+                            'content-type': 'text/html;charset=UTF-8',
+                            'X-Robots-Tag': 'noindex',
+                        }
+                    })
+        );
+    }
+}
+
+function sanitizeCSS(string) {
+    return (string && string.replace) ? string.replace('<', '%3C').replace('>', '%3E').replace('{', '%7B').replace('}', '%7D') : '';
+} // sanitizeCSS
+
+function sanitizeSrc(imgSrc, cloud) {
+    imgSrc = imgSrc.replace(`https://res.cloudinary.com/${cloud}/`, `https://${cloud}-res.cloudinary.com/`);
+    if (imgSrc.startsWith(`https://${cloud}-res.cloudinary.com/`) || imgSrc.startsWith(`https://cloudinary-marketing-res.cloudinary.com/`))
+        return imgSrc;
+    return '';
+} // sanitizeSrc
+
+/**
+ * Many more examples available at:
+ *   https://developers.cloudflare.com/workers/examples
+ * @param {Request} request
+ * @returns {Promise<Response>}
+ */
+async function handleRequest(request) {
+    if (new URL(request.url).pathname == '/robots.txt') {
+        return new Response('User-agent: *\nDisallow: /', {
+            headers: {
+                'cache-control': 'public, max-age=31536000, immutable',
+                'content-type': 'text/html;charset=UTF-8',
+                'X-Robots-Tag': 'noindex',
+            }
+        });
+    }
+    const urlPath = new URL(request.url).pathname.split('/');
+    const cloud = urlPath[1];
+    if (! cloud) {
+        return Response.redirect('https://cloudinary.com/', 302);
+    }
+    const configFile = `https://res.cloudinary.com/${cloud}/raw/upload/uploads_minisite/${urlPath.slice(2).join('/')}.json`;
+    const config = JSON.parse(await fetch(configFile)
+                .then(response => response.text())
+                .catch(err => {throw(err)}));
+    const minisite_config = config.minisite_config;
+    const uw_config = config.upload_widget_config;
+    const title = minisite_config.title.replaceAll('</','<\\/') || '';
+    if (! title)
+        throw(new Error('No title'));
+    const subtitle = minisite_config.subtitle.replaceAll('</','<\\/') || '';
+    const background = sanitizeSrc(minisite_config.backgroundImage || '', cloud);
+    const ogImage = sanitizeSrc(minisite_config.opengraphImage || '', cloud)
+    delete uw_config.cloudName;  // Just in case
+    uw_config.inlineContainer = '#upload_widget';
+    const minisiteBg = `background-image: url('${background}') !important; background-repeat: no-repeat !important; background-size: cover !important`;
+    const defaultHColor = 'color: ' + ((config.styles && config.styles.palette && config.styles.palette.menuIcons) ? sanitizeCSS(config.styles.palette.menuIcons) : "#5A616A");
+    const minisiteH1 = `${sanitizeCSS(minisite_config.titleStyle ? minisite_config.titleStyle : defaultHColor)}`;
+    const minisiteH2 = `${sanitizeCSS(minisite_config.subtitleStyle? minisite_config.subtitleStyle : defaultHColor)}`;
+    const googleFont = minisite_config.googleFont ? `<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=${sanitizeCSS(minisite_config.googleFont)}"></link>` : '';
+
+return new Response(`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>${title}</title>
+<link rel="shortcut icon" href="https://res.cloudinary.com/favicon.ico">
+<script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+<meta name="description" content="Cloudinary upload minisite - ${title.replaceAll('"','&quot;')}${subtitle ? ' | ' + subtitle.replaceAll('"','&quot;') : ''}">
+<meta property="og:locale" content="en_US" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="${subtitle.replaceAll('"','&quot;')}" />
+<meta property="og:description" content="Cloudinary upload minisite" />
+<meta property="og:image" content="${ogImage}" />
+<meta property="og:url" content="https://cloudinary.com/" />
+<meta property="og:site_name" content="${title.replaceAll('"','&quot;')}" />
+<meta name="twitter:card" content="summary_large_image" />
+${googleFont}
+<style>
+body {${minisiteBg}}
+#upload_widget {max-width: 900px; margin: auto;}
+h1 {${minisiteH1}}
+h2 {${minisiteH2}}
+</style>
+</head>
+<body>
+<div id="upload_widget">
+<h1>${title}</h1>
+<h2>${subtitle}</h2>
+</div>
+<script>
+cloudinary.setCloudName('${cloud}');
+cloudinary.openUploadWidget(${JSON.stringify(uw_config)});
+</script>
+</body>
+</html>
+`, {
+        headers: {
+            'cache-control': 'public, max-age=31536000, immutable',
+            'strict-transport-security': 'max-age=604800',
+            'content-type': 'text/html;charset=UTF-8',
+            "content-security-policy": `base-uri 'self'; object-src 'none'; default-src 'self' 'unsafe-inline' https://fonts.googleapis.com data: blob: https://fonts.gstatic.com https://upload-widget.cloudinary.com; img-src https://res.cloudinary.com https://${cloud}-res.cloudinary.com https://cloudinary-marketing-res.cloudinary.com data:; script-src https://upload-widget.cloudinary.com 'unsafe-inline' blob:; font-src http://res.cloudinary.com https://${cloud}-res.cloudinary.com fonts.gstatic.com; style-src 'unsafe-inline' fonts.googleapis.com`,
+            'link': `<${background}>; rel="preload"; as="image", <https://upload-widget.cloudinary.com/global/all.js>; rel="preload"; as="script", <https://fonts.googleapis.com/>; rel="preconnect", <https://fonts.gstatic.com/>; rel="preconnect"; crossorigin, <https://res-s.cloudinary.com>; rel="preconnect", <https://widget.cloudinary.com>; rel="preconnect"; crossorigin`,
+            'x-content-type-options': 'nosniff',
+            'x-frame-options': 'DENY',
+            'x-xss-Protection': '1; mode=block',
+            'referrer-policy': 'no-referrer-when-downgrade',
+            'X-Robots-Tag': 'noindex',
+        },
+    });
+}
