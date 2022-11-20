@@ -16,7 +16,7 @@ You need to have a Cloudinary account or create one for [free Cloudinary account
 
 ### 1. Creating an unsigned upload preset
 
-Use the [console](https://cloudinary.com/console/settings/upload) to define the options that apply to your uploads. We are going to modify 3 fields only to achieve our purpose, but there is much more functionality and value that can be explored in the [documentation](https://cloudinary.com/documentation/upload_presets#managing_upload_presets_using_the_settings_ui).
+Use the [console](https://console.cloudinary.com/settings/upload) to define the options that apply to your uploads. We are going to modify 3 fields only to achieve our purpose, but there is much more functionality and value that can be explored in the [documentation](https://cloudinary.com/documentation/upload_presets#managing_upload_presets_using_the_settings_ui).
  - **Upload preset name** - The name is used to discern between your upload presets. It will not be shown in the minisite, but it is possible to see it when inspecting the HTML of the minisite.
  - **Signing Mode** - Change to unsigned. This allows unauthenticated users to upload assets.
  - **Folder** - Specify the Media Library folder you would like to have the uploaded assets. You don’t need to create this folder ahead, Cloudinary will create it for you upon the first upload.
