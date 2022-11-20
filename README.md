@@ -22,7 +22,7 @@ Use the [console](https://console.cloudinary.com/settings/upload) to define the 
  - **Folder** - Specify the Media Library folder you would like to have the uploaded assets. You don’t need to create this folder ahead, Cloudinary will create it for you upon the first upload.
 
 ### 2. Configuring the minisite
-Edit the template [sample_uw.json](sample_uw.json) from this repo. At a minimum, edit these fields:
+Edit the template [sample_uw.json](https://github.com/cloudinary-devs/upload-minisite/raw/main/sample_uw.json) from this repo. At a minimum, edit these fields:
  - Title
  - Subtitle
  - uploadPreset - the one you used in the previous step
