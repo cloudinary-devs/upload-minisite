@@ -29,8 +29,8 @@ Edit the template [sample_uw.json](https://github.com/cloudinary-devs/upload-min
 
 There are plenty of additional options to adjust like colors, fonts, and upload sources in the template.
 Save the template using a meaningful public name, for example, “photographers.json”. Any name is valid, as long as the extension is kept “.json”.
-Create a folder called “uploads_ministe” on the top-level folder of your environment. Upload the JSON file to this folder.
-Adjust the public_id of the JSON file to match the folder structure, e.g. “uploads_ministe/photographers.json”.
+Create a folder called “uploads_minisite” on the top-level folder of your environment. Upload the JSON file to this folder.
+Adjust the public_id of the JSON file to match the folder structure, e.g. “uploads_minisite/photographers.json”.
 
 ### 3. Testing
 Make sure that you can access the JSON from a web browser as 
