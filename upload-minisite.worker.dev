@@ -32,7 +32,8 @@ function sanitizeSrc(imgSrc, cloud) {
  * @returns {Promise<Response>}
  */
 async function handleRequest(request) {
-    if (new URL(request.url).pathname == '/robots.txt') {
+    const urlPathName = new URL(request.url).pathname;
+    if (urlPathName == '/robots.txt') {
         return new Response('User-agent: *\nDisallow: /', {
             headers: {
                 'cache-control': 'public, max-age=31536000, immutable',
@@ -41,7 +42,7 @@ async function handleRequest(request) {
             }
         });
     }
-    const urlPath = new URL(request.url).pathname.split('/');
+    const urlPath = urlPathName.split('/');
     const cloud = urlPath[1];
     if (! cloud) {
         return Response.redirect('https://cloudinary.com/', 302);
