@@ -1,8 +1,8 @@
 "use strict";
-export default {
-    async fetch(request, env) {
-        return await handleRequest(request).catch(
-            (err) => new Response('This link doesn\'t work. There is nothing much we can say about it', {
+addEventListener("fetch", (event) => {
+  event.respondWith(
+    handleRequest(event).catch(
+      (err) => new Response('This link doesn\'t work. There is nothing much we can say about it', {
                         status: 400,
                         headers: {
                             'cache-control': 'public, max-age=600, immutable',
@@ -10,9 +10,9 @@ export default {
                             'X-Robots-Tag': 'noindex',
                         }
                     })
-        );
-    }
-}
+    )
+  );
+});
 
 function sanitizeCSS(string) {
     return (string && string.replace) ? string.replace('<', '%3C').replace('>', '%3E').replace('{', '%7B').replace('}', '%7D') : '';
@@ -28,10 +28,11 @@ function sanitizeSrc(imgSrc, cloud) {
 /**
  * Many more examples available at:
  *   https://developers.cloudflare.com/workers/examples
- * @param {Request} request
+ * @param {Event} event
  * @returns {Promise<Response>}
  */
-async function handleRequest(request) {
+async function handleRequest(event) {
+    const request = event.request;
     const urlPathName = new URL(request.url).pathname;
     if (urlPathName == '/robots.txt') {
         return new Response('User-agent: *\nDisallow: /', {
@@ -61,7 +62,7 @@ async function handleRequest(request) {
     const ogImage = sanitizeSrc(minisite_config.opengraphImage || '', cloud)
     delete uw_config.cloudName;  // Just in case
     uw_config.inlineContainer = '#upload_widget';
-    const minisiteBg = `background-image: url('${background}') !important; background-repeat: no-repeat !important; background-size: cover !important`;
+    const minisiteBg =  background ? `background-image: url('${background}') !important; background-repeat: no-repeat !important; background-size: cover !important` : '';
     const defaultHColor = 'color: ' + ((config.styles && config.styles.palette && config.styles.palette.menuIcons) ? sanitizeCSS(config.styles.palette.menuIcons) : "#5A616A");
     const minisiteH1 = `${sanitizeCSS(minisite_config.titleStyle ? minisite_config.titleStyle : defaultHColor)}`;
     const minisiteH2 = `${sanitizeCSS(minisite_config.subtitleStyle? minisite_config.subtitleStyle : defaultHColor)}`;
