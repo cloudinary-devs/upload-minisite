@@ -34,6 +34,9 @@ function sanitizeSrc(imgSrc, cloud) {
 async function handleRequest(event) {
     const request = event.request;
     const urlPathName = new URL(request.url).pathname;
+    const urlPath = urlPathName.split('/');
+    const cloud = urlPath[1];
+    
     if (urlPathName == '/robots.txt') {
         return new Response('User-agent: *\nDisallow: /', {
             headers: {
@@ -43,8 +46,7 @@ async function handleRequest(event) {
             }
         });
     }
-    const urlPath = urlPathName.split('/');
-    const cloud = urlPath[1];
+
     if (! cloud) {
         return Response.redirect('https://cloudinary.com/', 302);
     }
