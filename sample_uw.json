@@ -1,7 +1,7 @@
 {
     "minisite_config": {
         "_comment1": "Edit this JSON file and locate it under a folder uploads_minisite with a descriptive name. The folder should be created at the top level.",
-        "_comment2": "Assuming the public_id of the JSON is https://greatbiz-res.cloudinary.com/raw/upload/uploads_minisite/agencies/best-one.json",
+        "_comment2": "Assuming the public_id of the JSON is https://res.cloudinary.com/greatbiz/raw/upload/uploads_minisite/agencies/best-one.json",
         "_comment3": "then the upload minisite would be available at https://upload-minisite.cloudinary.us/greatbiz/agencies/best-one",
         
         "_troubleshooting1": "Put the JSON URL in a web browser and make sure you that it is fetched",

@@ -22,8 +22,7 @@ function sanitizeCSS(string) {
 } // sanitizeCSS
 
 function sanitizeSrc(imgSrc, cloud) {
-    imgSrc = imgSrc.replace(`https://res.cloudinary.com/${cloud}/`, `https://${cloud}-res.cloudinary.com/`);
-    if (imgSrc.startsWith(`https://${cloud}-res.cloudinary.com/`) || imgSrc.startsWith(`https://cloudinary-marketing-res.cloudinary.com/`))
+    if (imgSrc.startsWith(`https://${cloud}-res.cloudinary.com/`) || imgSrc.startsWith(`https://res.cloudinary.com/${cloud}/`) || imgSrc.startsWith(`https://cloudinary-marketing-res.cloudinary.com/`))
         return imgSrc;
     return '';
 } // sanitizeSrc

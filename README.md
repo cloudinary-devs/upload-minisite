@@ -34,7 +34,7 @@ Adjust the public_id of the JSON file to match the folder structure, e.g. “upl
 
 ### 3. Testing
 Make sure that you can access the JSON from a web browser as 
-ht<span>tps://\<your env id\>-res.cloudinary.com/raw/upload/uploads_minisite/photographers.json
+ht<span>tps://res.cloudinary.com/\<your env id\>/raw/upload/uploads_minisite/photographers.json
 
 ### 4. Distributing
 Immediately see the results at ht<span>tps://upload-minisite.cloudinary.us/\<your environment id\>/photographers.
