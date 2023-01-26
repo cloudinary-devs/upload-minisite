@@ -2,26 +2,28 @@
 
 A powerful media API for websites and mobile apps alike, Cloudinary enables developers to efficiently manage, transform, optimize, and deliver images and videos through multiple CDNs. Ultimately, viewers enjoy responsive and personalized visual-media experiences—irrespective of the viewing device.
 
-## Use case
+## Description
 
-You have contractors that send you shootings and art, which you upload to Cloudinary. And then you learned that you could get them to upload assets directly to a designated folder using unsigned uploads, which is cool. Fewer emails, less effort, and no need for additional Cloudinary users.
+There are many use cases in which your partners send you photos, video footage, art, or any other type of media and/or artifacts that you then have to upload to Cloudinary. This process can lead to extra, time-consuming manual work and result in a lack of accountability. 
 
-But how should you use it? If you have development skills at your hand, and a ready infrastructure, you can go ahead and embed the Upload Widget instead of reading further down. This blog will show you how to unleash the power of unsigned uploads without a single line of code, and without a single ticket to the IT department.
+This project is designed to build you a minisite without adding users, writing a single line of code, or sending a ticket to IT – freeing you up to do other higher-value work. 
+
+(For Developers: Go ahead and use the [Cloudinary Upload Widget](https://demo.cloudinary.com/uw/#/) or upload files through [AJAX techniques](https://cloudinary.com/blog/file_upload_with_ajax). No need to read any further).
 
 ## Prerequisites
 
-You need to have a Cloudinary account or create one for [free Cloudinary account](https://cloudinary.com/users/register_free).
+You will need to have a Cloudinary account. Don’t have one? You can create a [free Cloudinary account](https://cloudinary.com/users/register_free) here.
 
-## Installing
+## Step-by-step
 
-### 1. Creating an unsigned upload preset
+### 1. Create an upload preset
 
 Use the [console](https://console.cloudinary.com/settings/upload) to define the options that apply to your uploads. We are going to modify 3 fields only to achieve our purpose, but there is much more functionality and value that can be explored in the [documentation](https://cloudinary.com/documentation/upload_presets#managing_upload_presets_using_the_settings_ui).
  - **Upload preset name** - The name is used to discern between your upload presets. It will not be shown in the minisite, but it is possible to see it when inspecting the HTML of the minisite.
  - **Signing Mode** - Change to unsigned. This allows unauthenticated users to upload assets.
  - **Folder** - Specify the Media Library folder you would like to have the uploaded assets. You don’t need to create this folder ahead, Cloudinary will create it for you upon the first upload.
 
-### 2. Configuring the minisite
+### 2. Configure the minisite
 Edit the template [sample_uw.json](https://github.com/cloudinary-devs/upload-minisite/raw/main/sample_uw.json) from this repo. At a minimum, edit these fields:
  - Title
  - Subtitle
@@ -38,3 +40,7 @@ ht<span>tps://res.cloudinary.com/\<your env id\>/raw/upload/uploads_minisite/pho
 
 ### 4. Distributing
 Immediately see the results at ht<span>tps://upload-minisite.cloudinary.us/\<your environment id\>/photographers.
+
+## Live example
+This is a [live upload minisite demo](https://upload-minisite.cloudinary.us/hzxyensd5/demo) that was created by uploading this [JSON](https://res.cloudinary.com/hzxyensd5/raw/upload/v1674040980/uploads_minisite/demo.json) to Cloudinary.
+
