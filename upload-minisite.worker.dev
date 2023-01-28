@@ -1,10 +1,10 @@
 // A minisite generator featuring the Cloudinary Upload Widget
 
-"use strict";
+"use strict"
 
 export default {
-    fetch(request, _env, ctx) {
-        return handleRequest(request, ctx).catch(_err =>
+    fetch(request, env, ctx) {
+        return handleRequest(request, env, ctx).catch(_err =>
             new Response('This link doesn\'t work. There is nothing much we can say about it', {
                 status: 400,
                 headers: {
@@ -13,24 +13,44 @@ export default {
                     'X-Robots-Tag': 'noindex',
                 }
             })
-        );
+        )
     },
 }
 
+async function getCustomCname(validatedCname, cloudName, CLOUD_CNAME, inputUrl) {
+    if (validatedCname.origin)
+        return
+    validatedCname.origin = await CLOUD_CNAME.get(cloudName)
+    if (!inputUrl.startsWith(validatedCname.origin + '/')) {
+        try {
+            const newCnameObj = await fetch(`https://widget.cloudinary.com/info/${cloudName}.json`)
+                .then(response => response.json())
+            const newCname = `https://${newCnameObj["data-secure-distribution"]}`
+            if (newCname != validatedCname.origin) {
+                CLOUD_CNAME.put(cloudName, newCname)
+                validatedCname.origin = newCname
+            }
+        } catch(_err) {}
+    }
+} // getCustomCname
+
 function sanitizeCSS(string) {
-    return (string && string.replace) ? string.replace('<', '%3C').replace('>', '%3E').replace('{', '%7B').replace('}', '%7D') : '';
+    return (string && string.replace) ? string.replace('<', '%3C').replace('>', '%3E').replace('{', '%7B').replace('}', '%7D') : ''
 } // sanitizeCSS
 
-function sanitizeSrc(imgSrc, cloud) {
+function sanitizeSrc(validatedCname, CLOUD_CNAME, imgSrc, cloud) {
     if (imgSrc.startsWith(`https://${cloud}-res.cloudinary.com/`) || imgSrc.startsWith(`https://res.cloudinary.com/${cloud}/`) || imgSrc.startsWith(`https://cloudinary-marketing-res.cloudinary.com/`))
-        return imgSrc;
-    return '';
+        return imgSrc
+    getCustomCname(validatedCname, cloudName, CLOUD_CNAME, inputUrl)
+    if (imgSrc.startsWith(validatedCname.origin + '/'))
+        return imgSrc
+    return ''
 } // sanitizeSrc
 
-async function handleRequest(request, _ctx) {
-    const urlPathName = new URL(request.url).pathname;
-    const urlPath = urlPathName.split('/');
-    const cloud = urlPath[1];
+async function handleRequest(request, env, _ctx) {
+    const urlPathName = new URL(request.url).pathname
+    const urlPath = urlPathName.split('/')
+    const cloud = urlPath[1]
     if (urlPathName == '/robots.txt') {
         return new Response('User-agent: *\nDisallow: /', {
             headers: {
@@ -38,35 +58,36 @@ async function handleRequest(request, _ctx) {
                 'content-type': 'text/html;charset=UTF-8',
                 'X-Robots-Tag': 'noindex',
             }
-        });
+        })
     }
     if (!cloud) {
-        return Response.redirect('https://cloudinary.com/', 302);
+        return Response.redirect('https://cloudinary.com/', 302)
     }
-    const configFile = `https://res.cloudinary.com/${cloud}/raw/upload/uploads_minisite/${urlPath.slice(2).join('/')}.json`;
+    const configFile = `https://res.cloudinary.com/${cloud}/raw/upload/uploads_minisite/${urlPath.slice(2).join('/')}.json`
     const config = JSON.parse(await fetch(configFile)
                 .then(response => response.text())
-                .catch(err => {throw(err)}));
-    const minisite_config = config.minisite_config;
-    const uw_config = config.upload_widget_config;
-    const title = minisite_config.title.replaceAll('</','<\\/') || '';
+                .catch(err => {throw(err)}))
+    const minisite_config = config.minisite_config
+    const uw_config = config.upload_widget_config
+    const title = minisite_config.title.replaceAll('</','<\\/') || ''
     if (!title)
-        throw(new Error('No title'));
-    const subtitle = minisite_config.subtitle.replaceAll('</','<\\/') || '';
-    const background = sanitizeSrc(minisite_config.backgroundImage || '', cloud);
-    const ogImage = sanitizeSrc(minisite_config.opengraphImage || '', cloud);
-    delete uw_config.cloudName;  // prevent injection
+        throw(new Error('No title'))
+    const subtitle = minisite_config.subtitle.replaceAll('</','<\\/') || ''
+    const validatedCname = {origin: null}
+    const background = sanitizeSrc(validatedCname, env.CLOUD_CNAME, minisite_config.backgroundImage || '', cloud)
+    const ogImage = sanitizeSrc(validatedCname, env.CLOUD_CNAME, minisite_config.opengraphImage || '', cloud)
+    delete uw_config.cloudName  // prevent injection
     Object.keys(uw_config).forEach(attr => {
         // Don't pass the JSON comments to the frontend
         if (attr.startsWith('_comment'))
-            delete uw_config[attr];
-    });
-    uw_config.inlineContainer = '#upload_widget';
-    const minisiteBg =  background ? `background-image: url('${background}') !important; background-repeat: no-repeat !important; background-size: cover !important` : '';
-    const defaultHColor = 'color: ' + ((config.styles && config.styles.palette && config.styles.palette.menuIcons) ? sanitizeCSS(config.styles.palette.menuIcons) : "#5A616A");
-    const minisiteH1 = `${sanitizeCSS(minisite_config.titleStyle ? minisite_config.titleStyle : defaultHColor)}`;
-    const minisiteH2 = `${sanitizeCSS(minisite_config.subtitleStyle? minisite_config.subtitleStyle : defaultHColor)}`;
-    const googleFont = minisite_config.googleFont ? `<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=${sanitizeCSS(minisite_config.googleFont)}">` : '';
+            delete uw_config[attr]
+    })
+    uw_config.inlineContainer = '#upload_widget'
+    const minisiteBg =  background ? `background-image: url('${background}') !important; background-repeat: no-repeat !important; background-size: cover !important` : ''
+    const defaultHColor = 'color: ' + ((config.styles && config.styles.palette && config.styles.palette.menuIcons) ? sanitizeCSS(config.styles.palette.menuIcons) : "#5A616A")
+    const minisiteH1 = `${sanitizeCSS(minisite_config.titleStyle ? minisite_config.titleStyle : defaultHColor)}`
+    const minisiteH2 = `${sanitizeCSS(minisite_config.subtitleStyle? minisite_config.subtitleStyle : defaultHColor)}`
+    const googleFont = minisite_config.googleFont ? `<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=${sanitizeCSS(minisite_config.googleFont)}">` : ''
 
 return new Response(`<!DOCTYPE html>
 <html lang="en">
@@ -100,8 +121,8 @@ h2 {${minisiteH2}}
 <h2>${subtitle}</h2>
 </div>
 <script>
-cloudinary.setCloudName('${cloud}');
-cloudinary.openUploadWidget(${JSON.stringify(uw_config)});
+cloudinary.setCloudName('${cloud}')
+cloudinary.openUploadWidget(${JSON.stringify(uw_config)})
 </script>
 </body>
 </html>
@@ -110,13 +131,13 @@ cloudinary.openUploadWidget(${JSON.stringify(uw_config)});
             'cache-control': 'public, max-age=31536000, immutable',
             'strict-transport-security': 'max-age=604800',
             'content-type': 'text/html;charset=UTF-8',
-            "content-security-policy": `base-uri 'self'; object-src 'none'; default-src 'self' 'unsafe-inline' https://fonts.googleapis.com data: blob: https://fonts.gstatic.com https://upload-widget.cloudinary.com; img-src https://res.cloudinary.com https://${cloud}-res.cloudinary.com https://cloudinary-marketing-res.cloudinary.com data:; script-src https://upload-widget.cloudinary.com 'unsafe-inline' blob:; font-src http://res.cloudinary.com https://${cloud}-res.cloudinary.com fonts.gstatic.com; style-src 'unsafe-inline' fonts.googleapis.com`,
-            'link': `<${background}>; rel="preload"; as="image", <https://upload-widget.cloudinary.com/global/all.js>; rel="preload"; as="script", <https://fonts.googleapis.com>; rel="preconnect", <https://fonts.gstatic.com>; rel="preconnect"; crossorigin, <https://res-s.cloudinary.com>; rel="preconnect", <https://widget.cloudinary.com>; rel="preconnect"; crossorigin`,
+            "content-security-policy": `base-uri 'self'; object-src 'none'; default-src 'self' 'unsafe-inline' https://fonts.googleapis.com data: blob: https://fonts.gstatic.com https://upload-widget.cloudinary.com; img-src ${validatedCname.origin ? validatedCname.origin + ' ' : ''}https://res.cloudinary.com https://${cloud}-res.cloudinary.com https://cloudinary-marketing-res.cloudinary.com data:; script-src https://upload-widget.cloudinary.com 'unsafe-inline' blob:; font-src http://res.cloudinary.com https://${cloud}-res.cloudinary.com fonts.gstatic.com; style-src 'unsafe-inline' fonts.googleapis.com`,
+            'link': `<${background}>; rel="preload"; as="image", <https://upload-widget.cloudinary.com/global/all.js>; rel="preload"; as="script", <https://fonts.googleapis.com/>; rel="preconnect", <https://fonts.gstatic.com/>; rel="preconnect"; crossorigin, <https://res-s.cloudinary.com>; rel="preconnect", <https://widget.cloudinary.com>; rel="preconnect"; crossorigin`,
             'x-content-type-options': 'nosniff',
             'x-frame-options': 'DENY',
             'x-xss-Protection': '1; mode=block',
             'referrer-policy': 'no-referrer-when-downgrade',
             'X-Robots-Tag': 'noindex',
         },
-    });
+    })
 }
