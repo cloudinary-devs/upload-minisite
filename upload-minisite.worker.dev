@@ -17,7 +17,7 @@ export default {
     },
 }
 
-async function getCustomCname(validatedCname, cloudName, CLOUD_CNAME, inputUrl) {
+async function findCustomCname(validatedCname, cloudName, CLOUD_CNAME, inputUrl) {
     if (validatedCname.origin)
         return
     validatedCname.origin = await CLOUD_CNAME.get(cloudName)
@@ -32,7 +32,7 @@ async function getCustomCname(validatedCname, cloudName, CLOUD_CNAME, inputUrl) 
             }
         } catch(_err) {}
     }
-} // getCustomCname
+} // findCustomCname
 
 function sanitizeCSS(string) {
     return (string && string.replace) ? string.replace('<', '%3C').replace('>', '%3E').replace('{', '%7B').replace('}', '%7D') : ''
@@ -41,7 +41,7 @@ function sanitizeCSS(string) {
 function sanitizeSrc(validatedCname, CLOUD_CNAME, imgSrc, cloud) {
     if (imgSrc.startsWith(`https://${cloud}-res.cloudinary.com/`) || imgSrc.startsWith(`https://res.cloudinary.com/${cloud}/`) || imgSrc.startsWith(`https://cloudinary-marketing-res.cloudinary.com/`))
         return imgSrc
-    getCustomCname(validatedCname, cloudName, CLOUD_CNAME, inputUrl)
+    findCustomCname(validatedCname, cloudName, CLOUD_CNAME, inputUrl)
     if (imgSrc.startsWith(validatedCname.origin + '/'))
         return imgSrc
     return ''
