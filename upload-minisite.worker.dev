@@ -1,11 +1,18 @@
 // A minisite generator featuring the Cloudinary Upload Widget
+// Blog: https://cloudinary.com/blog/no-code-uploads-to-cloudinary
+
+// To reuse this worker you'll need this setup:
+// - A bundled worker
+// - Create and bind a worker KV, with the binding CLOUD_CNAME 
 
 "use strict"
 
 export default {
-    fetch(request, env, ctx) {
-        return handleRequest(request, env, ctx).catch(_err =>
-            new Response('This link doesn\'t work. There is nothing much we can say about it', {
+    async fetch(request, env, ctx) {
+        try {
+            return await handleRequest(request, env, ctx)
+        } catch (_err) {
+            return new Response('This link doesn\'t work. There is nothing much we can say about it', {
                 status: 400,
                 headers: {
                     'cache-control': 'public, max-age=600, immutable',
@@ -13,35 +20,38 @@ export default {
                     'X-Robots-Tag': 'noindex',
                 }
             })
-        )
+        }
     },
 }
 
-async function findCustomCname(validatedCname, cloudName, CLOUD_CNAME, inputUrl) {
-    if (validatedCname.origin)
+// Fetching and caching a Cloudinary environment custom CNAME
+async function getCustomCname(validatedCname, cloudName, env, inputUrl) {
+    if (validatedCname.origin !== null)
         return
-    validatedCname.origin = await CLOUD_CNAME.get(cloudName)
+    validatedCname.origin = await env.CLOUD_CNAME.get(cloudName)
     if (!inputUrl.startsWith(validatedCname.origin + '/')) {
         try {
             const newCnameObj = await fetch(`https://widget.cloudinary.com/info/${cloudName}.json`)
                 .then(response => response.json())
             const newCname = `https://${newCnameObj["data-secure-distribution"]}`
             if (newCname != validatedCname.origin) {
-                CLOUD_CNAME.put(cloudName, newCname)
                 validatedCname.origin = newCname
+                await env.CLOUD_CNAME.put(cloudName, newCname)
             }
         } catch(_err) {}
     }
-} // findCustomCname
+} // getCustomCname
 
+// Sanitizing and encoding the CSS values from the upload minisite configuration object
 function sanitizeCSS(string) {
-    return (string && string.replace) ? string.replace('<', '%3C').replace('>', '%3E').replace('{', '%7B').replace('}', '%7D') : ''
+    return (string && string.replaceAll) ? string.replaceAll('<', '%3C').replaceAll('>', '%3E').replaceAll('{', '%7B').replaceAll('}', '%7D') : ''
 } // sanitizeCSS
 
-function sanitizeSrc(validatedCname, CLOUD_CNAME, imgSrc, cloud) {
+// Sanitizing the media sources of the upload minisite configuration object. Only self-hosted assets are allowed
+async function sanitizeSrc(validatedCname, env, imgSrc, cloud) {
     if (imgSrc.startsWith(`https://${cloud}-res.cloudinary.com/`) || imgSrc.startsWith(`https://res.cloudinary.com/${cloud}/`) || imgSrc.startsWith(`https://cloudinary-marketing-res.cloudinary.com/`))
         return imgSrc
-    findCustomCname(validatedCname, cloudName, CLOUD_CNAME, inputUrl)
+    await getCustomCname(validatedCname, cloud, env, imgSrc)
     if (imgSrc.startsWith(validatedCname.origin + '/'))
         return imgSrc
     return ''
@@ -74,8 +84,8 @@ async function handleRequest(request, env, _ctx) {
         throw(new Error('No title'))
     const subtitle = minisite_config.subtitle.replaceAll('</','<\\/') || ''
     const validatedCname = {origin: null}
-    const background = sanitizeSrc(validatedCname, env.CLOUD_CNAME, minisite_config.backgroundImage || '', cloud)
-    const ogImage = sanitizeSrc(validatedCname, env.CLOUD_CNAME, minisite_config.opengraphImage || '', cloud)
+    const background = await sanitizeSrc(validatedCname, env, minisite_config.backgroundImage || '', cloud)
+    const ogImage = await sanitizeSrc(validatedCname, env, minisite_config.opengraphImage || '', cloud)
     delete uw_config.cloudName  // prevent injection
     Object.keys(uw_config).forEach(attr => {
         // Don't pass the JSON comments to the frontend
@@ -131,13 +141,13 @@ cloudinary.openUploadWidget(${JSON.stringify(uw_config)})
             'cache-control': 'public, max-age=31536000, immutable',
             'strict-transport-security': 'max-age=604800',
             'content-type': 'text/html;charset=UTF-8',
-            "content-security-policy": `base-uri 'self'; object-src 'none'; default-src 'self' 'unsafe-inline' https://fonts.googleapis.com data: blob: https://fonts.gstatic.com https://upload-widget.cloudinary.com; img-src ${validatedCname.origin ? validatedCname.origin + ' ' : ''}https://res.cloudinary.com https://${cloud}-res.cloudinary.com https://cloudinary-marketing-res.cloudinary.com data:; script-src https://upload-widget.cloudinary.com 'unsafe-inline' blob:; font-src http://res.cloudinary.com https://${cloud}-res.cloudinary.com fonts.gstatic.com; style-src 'unsafe-inline' fonts.googleapis.com`,
+            "content-security-policy": `base-uri 'self'; object-src 'none'; default-src 'self' 'unsafe-inline' https://fonts.googleapis.com data: blob: https://fonts.gstatic.com https://upload-widget.cloudinary.com; img-src ${validatedCname.origin !== null ? validatedCname.origin + ' ' : ''}https://res.cloudinary.com https://${cloud}-res.cloudinary.com https://cloudinary-marketing-res.cloudinary.com data:; script-src https://upload-widget.cloudinary.com 'unsafe-inline' blob:; font-src http://res.cloudinary.com https://${cloud}-res.cloudinary.com fonts.gstatic.com; style-src 'unsafe-inline' fonts.googleapis.com`,
             'link': `<${background}>; rel="preload"; as="image", <https://upload-widget.cloudinary.com/global/all.js>; rel="preload"; as="script", <https://fonts.googleapis.com/>; rel="preconnect", <https://fonts.gstatic.com/>; rel="preconnect"; crossorigin, <https://res-s.cloudinary.com>; rel="preconnect", <https://widget.cloudinary.com>; rel="preconnect"; crossorigin`,
             'x-content-type-options': 'nosniff',
             'x-frame-options': 'DENY',
             'x-xss-Protection': '1; mode=block',
             'referrer-policy': 'no-referrer-when-downgrade',
-            'X-Robots-Tag': 'noindex',
+            'x-robots-tag': 'noindex',
         },
     })
 }
