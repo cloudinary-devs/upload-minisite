@@ -47,6 +47,10 @@ function sanitizeCSS(string) {
     return (string && string.replaceAll) ? string.replaceAll('<', '%3C').replaceAll('>', '%3E').replaceAll('{', '%7B').replaceAll('}', '%7D') : ''
 } // sanitizeCSS
 
+function isGoogleFontUsed(font, style) {
+    return font && style && String(style).toLowerCase().includes(String(font).toLowerCase())
+} // isGoogleFontUsed
+
 // Sanitizing the media sources of the upload minisite configuration object. Only self-hosted assets are allowed
 async function sanitizeSrc(validatedCname, env, imgSrc, cloud) {
     if (imgSrc.startsWith(`https://${cloud}-res.cloudinary.com/`) || imgSrc.startsWith(`https://res.cloudinary.com/${cloud}/`) || imgSrc.startsWith(`https://cloudinary-marketing-res.cloudinary.com/`))
@@ -97,7 +101,10 @@ async function handleRequest(request, env, _ctx) {
     const defaultHColor = 'color: ' + ((config.styles && config.styles.palette && config.styles.palette.menuIcons) ? sanitizeCSS(config.styles.palette.menuIcons) : "#5A616A")
     const minisiteH1 = `${sanitizeCSS(minisite_config.titleStyle ? minisite_config.titleStyle : defaultHColor)}`
     const minisiteH2 = `${sanitizeCSS(minisite_config.subtitleStyle? minisite_config.subtitleStyle : defaultHColor)}`
-    const googleFont = minisite_config.googleFont ? `<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=${sanitizeCSS(minisite_config.googleFont)}">` : ''
+    const inputGoogleFont = sanitizeCSS(minisite_config.googleFont)
+    const googleFont = (isGoogleFontUsed(inputGoogleFont, minisiteH1) || isGoogleFontUsed(inputGoogleFont, minisiteH2)) ? 
+        `<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=${inputGoogleFont}">` :
+        ''
 
 return new Response(`<!DOCTYPE html>
 <html lang="en">
