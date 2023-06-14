@@ -23,6 +23,7 @@ Use the [console](https://console.cloudinary.com/settings/upload) to define the 
  - **Signing Mode** - Change to unsigned. This allows unauthenticated users to upload assets.
  - **Folder** - Specify the Media Library folder you would like to have the uploaded assets. You don’t need to create this folder ahead, Cloudinary will create it for you upon the first upload.
 
+**_NOTE:_** Do not point the unsigned uploads to any sensitive folder, like the uploads_minisite. Also use folder permissions to limit other users in your organization from deleting or creating unauthorized minisites.
 ### 2. Configure the minisite
 Edit the template [sample_uw.json](https://github.com/cloudinary-devs/upload-minisite/raw/main/sample_uw.json) from this repo. At a minimum, edit these fields:
  - Title
