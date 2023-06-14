@@ -80,6 +80,7 @@ async function handleRequest(request, env, _ctx) {
     const configFile = `https://res.cloudinary.com/${cloud}/raw/upload/uploads_minisite/${urlPath.slice(2).join('/')}.json`
     const config = JSON.parse(await fetch(configFile)
                 .then(response => response.text())
+                .then(response => response.replace(/\s/g," "))
                 .catch(err => {throw(err)}))
     const minisite_config = config.minisite_config
     const uw_config = config.upload_widget_config
