@@ -10,7 +10,7 @@
 export default {
     async fetch(request, env, ctx) {
         try {
-            return handleRequest(request, env, ctx)
+            return await handleRequest(request, env, ctx)
         } catch (_err) {
             return new Response('This link doesn\'t work. There is nothing much we can say about it', {
                 status: 400,
