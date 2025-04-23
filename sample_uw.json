@@ -3,7 +3,7 @@
         "_comment1": "Edit this JSON file and locate it under a folder uploads_minisite with a descriptive name. The folder should be created at the top level.",
         "_comment2": "Assuming the public_id of the JSON is https://res.cloudinary.com/greatbiz/raw/upload/uploads_minisite/agencies/best-one.json",
         "_comment3": "then the upload minisite would be available at https://upload-minisite.cloudinary.us/greatbiz/agencies/best-one",
-        
+
         "_troubleshooting1": "Put the JSON URL in a web browser and make sure you that it is fetched",
         "_troubleshooting2": "Make sure you are using images (backgroundImage, opengraphImage) from your own environment only",
 
@@ -13,7 +13,10 @@
         "titleStyle": "color: #5A616A",
         "subtitle": "Share your assets here",
         "subtitleStyle": "color: #5A616A; font-family: Sofia, 'Times New Roman', Times, serif;",
-        "googleFont": "Sofia"
+        "disclaimer": "A disclaimer or any other footer message",
+        "disclaimerStyle": "color: #b80f0f; font-family: sans-serif;",
+        "googleFont": "Sofia",
+        "editable_smd": []
     },
     "upload_widget_config": {
         "_comment1": "To fully configure the upload widget, please see the reference in https://cloudinary.com/documentation/upload_widget_reference",

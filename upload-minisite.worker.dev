@@ -5,19 +5,20 @@
 // - A bundled worker
 // - Create and bind a worker KV, with the binding CLOUD_CNAME
 
+// cspell:words minisite opengraph nosniff
 "use strict"
 
 export default {
     async fetch(request, env, ctx) {
         try {
             return await handleRequest(request, env, ctx)
-        } catch (_err) {
-            return new Response('This link doesn\'t work. There is nothing much we can say about it', {
+        } catch (err) {
+            return new Response((err.toString().startsWith('Error: The configuration file')) ? err.toString().substring(7) : 'This link doesn\'t work. There is nothing much we can say about it', {
                 status: 400,
                 headers: {
                     'cache-control': 'public, max-age=600, immutable',
                     'content-type': 'text/html;charset=UTF-8',
-                    'X-Robots-Tag': 'noindex',
+                    'x-robots-tag': 'noindex',
                 }
             })
         }
@@ -25,15 +26,16 @@ export default {
 }
 
 // Fetching and caching a Cloudinary environment custom CNAME
-async function getCustomCname(cloud, env) {
-    let cname = await env.CLOUD_CNAME.get(cloud, {cacheTtl: 600})
+async function setCustomCname(env, cloud, cname) {
     try {
         const newCnameObj = await fetch(`https://widget.cloudinary.com/info/${cloud}.json`, {
             cf: {
-                    cacheEverything: true,
-                },
+              cacheTtl: 600,
+              cacheEverything: true,
+            },
         })
         .then(response => response.json())
+        // Avoid storing junk
         const extractedCname = newCnameObj["data-secure-distribution"]
         if (extractedCname === undefined)
             return ''
@@ -42,7 +44,21 @@ async function getCustomCname(cloud, env) {
             cname = newCname
             await env.CLOUD_CNAME.put(cloud, newCname)
         }
-    } catch(_err) {}
+    } catch(_err) {
+        // If the API was changed or anything, we can still try without a custom cname
+        return ''
+    }
+    return cname
+} // setCustomCname
+
+// Get fresh/cached CNAME
+async function getCustomCname(cloud, env, ctx) {
+    let cname = await env.CLOUD_CNAME.get(cloud, {cacheTtl: 600})
+    if (cname === null) {
+        cname = setCustomCname(env, cloud, cname)
+    } else {
+        ctx.waitUntil(setCustomCname(env, cloud, cname))
+    }
     return cname
 } // getCustomCname
 
@@ -53,6 +69,7 @@ function sanitizeCSS(string) {
         ''
 } // sanitizeCSS
 
+// Preventing loading of unused resources
 function isGoogleFontUsed(font, style) {
     return font && style && String(style).toLowerCase().includes(String(font).toLowerCase())
 } // isGoogleFontUsed
@@ -64,33 +81,61 @@ function sanitizeSrc(cname, imgSrc, cloud) {
         ''
 } // sanitizeSrc
 
-async function getConfig(cloud, urlPath) {
-    const configFile = `https://res.cloudinary.com/${cloud}/raw/upload/uploads_minisite/${urlPath.slice(2).join('/')}.json`
-    const config = JSON.parse(await fetch(configFile, {
+// Sanitizes the input for the metadata value
+function sanitizeMetadataValue(value) {
+    return sanitizeCSS(value.toString()).replaceAll('|','%7C').replace(/([=])/g, '\\$&');
+} // sanitizeMetadataValue
+
+async function setConfig(cloud, uwPath, cname, env, config) {
+    const configFile = `${cname ? cname : 'https://resc.cloudinary.com/' + cloud}/raw/upload/uploads_minisite/${uwPath}.json`
+    const rawConfig = await fetch(configFile, {
         cf: {
                 cacheTtl: 5,
                 cacheEverything: true,
             },
     })
+    .then(async response => {
+        if ([400, 401, 403, 404].includes(response.status)) {
+            await env.UW_CONFIGS.delete(cloud + '/' + uwPath)
+            throw new Error(`The configuration file is not accessible`)
+        }
+        return response
+    })
     .then(response => response.text())
     .then(response => response.replace(/\s/g," "))
-    .catch(err => {throw(err)}))
-    Object.keys(config).forEach(attr => {
+    .catch(err => {throw(err)})
+    // Avoid storing junk
+    const decodedConfig = JSON.parse(rawConfig)
+    Object.keys(decodedConfig).forEach(attr => {
         // Don't pass the JSON comments to the frontend
         if (attr[0] == '_')
-            delete config[attr]
+            delete decodedConfig[attr]
         else
-            Object.keys(config[attr]).forEach(subAttr => {
+            Object.keys(decodedConfig[attr]).forEach(subAttr => {
                 if (subAttr[0] == '_')
-                    delete config[attr][subAttr]
+                    delete decodedConfig[attr][subAttr]
             })
     })
-    return config
+    const newConfig = JSON.stringify(decodedConfig)
+    if (newConfig != config) {
+        await env.UW_CONFIGS.put(cloud + '/' + uwPath, newConfig)
+    }
+    return decodedConfig
+} // setConfig
+
+async function getConfig(cloud, urlPath, cname, env, ctx) {
+    const uwPath = urlPath.slice(2).join('/')
+    const config = await env.UW_CONFIGS.get(cloud + '/' + uwPath)
+    if (config === null) {
+        return setConfig(cloud, uwPath, cname, env, config)
+    } else {
+        ctx.waitUntil(setConfig(cloud, uwPath, cname, env, config))
+    }
+    return JSON.parse(config)
 } // getConfig
 
-async function handleRequest(request, env, _ctx) {
-    const urlPathName = new URL(request.url).pathname
-    const urlPath = urlPathName.split('/')
+async function handleRequest(request, env, ctx) {
+    const { pathname:urlPathName, searchParams } = new URL(request.url)
     if (urlPathName == '/robots.txt') {
         return new Response('User-agent: *\nDisallow: /', {
             headers: {
@@ -100,31 +145,52 @@ async function handleRequest(request, env, _ctx) {
             }
         })
     }
+    const urlPath = urlPathName.split('/')
     const cloud = urlPath[1]
     if (!cloud) {
         return Response.redirect('https://cloudinary.com/', 302)
     }
-    const config = await getConfig(cloud, urlPath)
+    const cname = await getCustomCname(cloud, env, ctx)
+    const config = await getConfig(cloud, urlPath, cname, env, ctx)
     const minisite_config = config.minisite_config
     const uw_config = config.upload_widget_config
     const title = minisite_config.title.replaceAll('</','<\\/') || ''
     if (!title)
         throw(new Error('No title'))
     const subtitle = minisite_config.subtitle.replaceAll('</','<\\/') || ''
-    const cname = await getCustomCname(cloud, env)
+    const disclaimer = minisite_config.disclaimer?.replaceAll('</','<\\/') || ''
     const background = sanitizeSrc(cname, minisite_config.backgroundImage || '', cloud)
+
+    let metadataString;
+    if (minisite_config.editable_smd && minisite_config.editable_smd.length > 0) {
+        if (uw_config.prepareUploadParams) {
+            throw(new Error('Cannot use prepareUploadParams with editable_smd')) // just incase prepareUploadParams was set in the JSON
+        }
+        const metadata = {};
+        for (const param of searchParams) {
+            if (minisite_config.editable_smd.includes(param[0])){
+                metadata[param[0]] = param[1]
+            }
+        }   
+        metadataString = Object.keys(metadata)
+                                .map((key) => `${key}=${sanitizeMetadataValue(metadata[key])}`)
+                                .join('|');
+    }
+
     const ogImage = sanitizeSrc(cname, minisite_config.opengraphImage || '', cloud)
+    const CSPcname = cname ? cname + ' ' : ''
     uw_config.cloudName = cloud
     uw_config.inlineContainer = '#upload_widget'
     const minisiteBg = background ? `background-image: url('${background}') !important; background-repeat: no-repeat !important; background-size: cover !important` : ''
     const defaultHColor = 'color: ' + ((config.styles && config.styles.palette && config.styles.palette.menuIcons) ? sanitizeCSS(config.styles.palette.menuIcons) : "#5A616A")
     const minisiteH1 = `${sanitizeCSS(minisite_config.titleStyle ? minisite_config.titleStyle : defaultHColor)}`
-    const minisiteH2 = `${sanitizeCSS(minisite_config.subtitleStyle? minisite_config.subtitleStyle : defaultHColor)}`
+    const minisiteH2 = `${sanitizeCSS(minisite_config.subtitleStyle ? minisite_config.subtitleStyle : defaultHColor)}`
+    const minisiteDisclaimer = `${sanitizeCSS(minisite_config.disclaimerStyle ? minisite_config.disclaimerStyle : defaultHColor)}`
     const inputGoogleFont = sanitizeCSS(minisite_config.googleFont)
     const googleFont = (isGoogleFontUsed(inputGoogleFont, minisiteH1) || isGoogleFontUsed(inputGoogleFont, minisiteH2)) ?
         `<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=${inputGoogleFont}">` :
         ''
-    const CSPcname = (cname ? cname + ' ' : '')
+
 return new Response(`<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -146,18 +212,30 @@ return new Response(`<!DOCTYPE html>
 ${googleFont}
 <style>
 body {${minisiteBg}}
-#upload_widget {max-width: 900px; margin: auto;}
+#upload_widget_container {max-width: 900px; margin: auto;}
 h1 {${minisiteH1}}
 h2 {${minisiteH2}}
+p.disclaimer {${minisiteDisclaimer}}
 </style>
 </head>
 <body>
-<div id="upload_widget">
+<div id="upload_widget_container">
 <h1>${title}</h1>
 <h2>${subtitle}</h2>
+<div id="upload_widget"></div>
+<p class="disclaimer">${disclaimer}</p>
 </div>
 <script>
-cloudinary.openUploadWidget(${JSON.stringify(uw_config)})
+const config = ${JSON.stringify(uw_config)}
+
+${ metadataString ? `config.prepareUploadParams = (cb, params) => {
+    params = {
+        metadata: '${metadataString.replace(/'/g, '\\$&')}'
+    };
+    cb(params);
+}` : ''}
+
+cloudinary.openUploadWidget(config)
 </script>
 </body>
 </html>
@@ -172,7 +250,7 @@ cloudinary.openUploadWidget(${JSON.stringify(uw_config)})
                 `img-src ${CSPcname}https://res.cloudinary.com https://${cloud}-res.cloudinary.com https://cloudinary-marketing-res.cloudinary.com data:; ` +
                 `script-src https://upload-widget.cloudinary.com 'self' 'unsafe-inline' blob:; ` +
                 `font-src ${CSPcname}https://res.cloudinary.com https://${cloud}-res.cloudinary.com https://fonts.gstatic.com; style-src 'unsafe-inline' https://fonts.googleapis.com`,
-            'link': `<${background}>; rel="preload"; as="image", <https://upload-widget.cloudinary.com/global/all.js>; rel="preload"; as="script", <https://fonts.googleapis.com/>; rel="preconnect", <https://fonts.gstatic.com/>; rel="preconnect"; crossorigin, <https://res-s.cloudinary.com>; rel="preconnect", <https://widget.cloudinary.com>; rel="preconnect"; crossorigin`,
+            'link': (background ? `<${background}>; rel="preload"; as="image", ` : '') + ' <https://upload-widget.cloudinary.com/global/all.js>; rel="preload"; as="script", <https://fonts.googleapis.com/>; rel="preconnect", <https://fonts.gstatic.com/>; rel="preconnect"; crossorigin, <https://res-s.cloudinary.com>; rel="preconnect", <https://widget.cloudinary.com>; rel="preconnect"; crossorigin',
             'x-content-type-options': 'nosniff',
             'x-frame-options': 'DENY',
             'x-xss-Protection': '1; mode=block',
