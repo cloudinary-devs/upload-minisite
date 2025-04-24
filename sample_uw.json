@@ -3,8 +3,10 @@
         "_comment1": "Edit this JSON file and locate it under a folder uploads_minisite with a descriptive name. The folder should be created at the top level.",
         "_comment2": "Assuming the public_id of the JSON is https://res.cloudinary.com/greatbiz/raw/upload/uploads_minisite/agencies/best-one.json",
         "_comment3": "then the upload minisite would be available at https://upload-minisite.cloudinary.us/greatbiz/agencies/best-one",
+        "_comment4": "You can define SMDs with predefined values in the URL. For example, https://upload-minisite.cloudinary.us/greatbiz/agencies/best-one?photographer=jane&region=world",
+        "_comment5": "The SMDs are defined in the editable_smd array in the JSON file, e.g., ['photographer', 'region']. The values of the SMDs are passed as query parameters in the URL.",
 
-        "_troubleshooting1": "Put the JSON URL in a web browser and make sure you that it is fetched",
+        "_troubleshooting1": "Put the JSON URL in a web browser and make sure that it is fetched",
         "_troubleshooting2": "Make sure you are using images (backgroundImage, opengraphImage) from your own environment only",
 
         "backgroundImage": "https://cloudinary-marketing-res.cloudinary.com/f_auto,q_auto,w_2000/website_2021/cloudinary_web_brand_assets_hero_background.png",
