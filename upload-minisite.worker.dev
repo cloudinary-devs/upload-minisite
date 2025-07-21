@@ -162,10 +162,12 @@ async function handleRequest(request, env, ctx) {
     const background = sanitizeSrc(cname, minisite_config.backgroundImage || '', cloud)
 
     let metadataString;
+    if (uw_config.prepareUploadParams || uw_config.preBatch) {
+        // prepareUploadParams and preBatch are passed as strings, and the UW expects a function.
+        // For security reasons, we don't allow customer-generated functions in the upload minisite.
+        throw(new Error('prepareUploadParams and preBatch functions are not supported. Please remove them from your JSON'))
+    }
     if (minisite_config.editable_smd && minisite_config.editable_smd.length > 0) {
-        if (uw_config.prepareUploadParams) {
-            throw(new Error('Cannot use prepareUploadParams with editable_smd')) // just incase prepareUploadParams was set in the JSON
-        }
         const metadata = {};
         for (const param of searchParams) {
             if (minisite_config.editable_smd.includes(param[0])){
@@ -225,7 +227,7 @@ p.disclaimer {${minisiteDisclaimer}}
 <div id="upload_widget"></div>
 <p class="disclaimer">${disclaimer}</p>
 </div>
-<script>
+<script nonce="SkVPttaOdNQClPvv/P/mlg==">
 const config = ${JSON.stringify(uw_config)}
 
 ${ metadataString ? `config.prepareUploadParams = (cb, params) => {
@@ -245,10 +247,11 @@ cloudinary.openUploadWidget(config)
             'strict-transport-security': 'max-age=604800',
             'content-type': 'text/html;charset=UTF-8',
             "content-security-policy": `upgrade-insecure-requests; ` +
-                `base-uri 'self'; object-src 'none'; ` +
-                `default-src 'self' https://upload-widget.cloudinary.com 'unsafe-inline' https://fonts.googleapis.com data: blob: https://fonts.gstatic.com; ` +
-                `img-src ${CSPcname}https://res.cloudinary.com https://${cloud}-res.cloudinary.com https://cloudinary-marketing-res.cloudinary.com data:; ` +
-                `script-src https://upload-widget.cloudinary.com 'self' 'unsafe-inline' blob:; ` +
+                `base-uri 'self'; frame-src 'self' https://upload-widget.cloudinary.com; object-src 'none'; ` +
+                `default-src 'none'; ` +
+                'connect-src https://www.google-analytics.com https://*.cloudinary.com; ' +
+                `img-src ${CSPcname}https://res.cloudinary.com https://${cloud}-res.cloudinary.com https://cloudinary-marketing-res.cloudinary.com https://upload-widget.cloudinary.com data:; ` +
+                `script-src https://upload-widget.cloudinary.com 'self' 'nonce-SkVPttaOdNQClPvv/P/mlg==' 'unsafe-inline' blob:; ` +
                 `font-src ${CSPcname}https://res.cloudinary.com https://${cloud}-res.cloudinary.com https://fonts.gstatic.com; style-src 'unsafe-inline' https://fonts.googleapis.com`,
             'link': (background ? `<${background}>; rel="preload"; as="image", ` : '') + ' <https://upload-widget.cloudinary.com/global/all.js>; rel="preload"; as="script", <https://fonts.googleapis.com/>; rel="preconnect", <https://fonts.gstatic.com/>; rel="preconnect"; crossorigin, <https://res-s.cloudinary.com>; rel="preconnect", <https://widget.cloudinary.com>; rel="preconnect"; crossorigin',
             'x-content-type-options': 'nosniff',
