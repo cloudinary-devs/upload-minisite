@@ -1,0 +1,264 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Upload Minisite Configuration",
+    "description": "Configuration schema for the Cloudinary Upload Minisite. See [project GitHub page](https://github.com/cloudinary-devs/upload-minisite) for examples.",
+    "type": "object",
+    "required": [
+        "minisite_config",
+        "upload_widget_config"
+    ],
+    "patternProperties": {
+        "^_": {
+            "type": "string"
+        }
+    },
+    "unevaluatedProperties": false,
+    "properties": {
+        "minisite_config": {
+            "type": "object",
+            "description": "Configuration for the UI and theming of the Upload Minisite.",
+            "required": [
+                "title"
+            ],
+            "patternProperties": {
+                "^_": {
+                    "type": "string"
+                }
+            },
+            "unevaluatedProperties": false,
+            "properties": {
+                "backgroundImage": {
+                    "type": "string",
+                    "description": "URL of the background image for the minisite."
+                },
+                "opengraphImage": {
+                    "type": "string",
+                    "description": "URL of the Open Graph image for social media link previews."
+                },
+                "title": {
+                    "type": "string",
+                    "description": "Main title text displayed at the top of the page."
+                },
+                "titleStyle": {
+                    "type": "string",
+                    "description": "CSS styles or class for customizing the title appearance."
+                },
+                "subtitle": {
+                    "type": "string",
+                    "description": "Optional subtitle text displayed below the title."
+                },
+                "subtitleStyle": {
+                    "type": "string",
+                    "description": "CSS styles or class for customizing the subtitle appearance."
+                },
+                "disclaimer": {
+                    "type": "string",
+                    "description": "Optional disclaimer or footer note displayed on the page."
+                },
+                "disclaimerStyle": {
+                    "type": "string",
+                    "description": "CSS styles or class for customizing the disclaimer."
+                },
+                "googleFont": {
+                    "type": "string",
+                    "description": "Google Font family to use (e.g., 'Roboto', 'Open Sans')."
+                },
+                "editable_smd": {
+                    "type": "array",
+                    "description": "List of editable single metadata fields (SMD) that can be set by a querystring.",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "upload_widget_config": {
+            "type": "object",
+            "description": "Configuration passed to the Cloudinary Upload Widget. See [Cloudinary Upload Widget docs](https://cloudinary.com/documentation/upload_widget).",
+            "required": [
+                "uploadPreset"
+            ],
+            "unevaluatedProperties": true,
+            "properties": {
+                "cloudName": false,
+                "prepareUploadParams": false,
+                "preBatch": false,
+                "uploadPreset": {
+                    "type": "string",
+                    "description": "Name of an unsigned upload preset defined in your Cloudinary account.",
+                    "minLength": 1
+                },
+                "sources": {
+                    "type": "array",
+                    "description": "List of allowed upload sources (e.g., 'local', 'url', 'camera').",
+                    "items": {
+                        "type": "string"
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                },
+                "googleDriveClientId": {
+                    "type": "string",
+                    "description": "Google Drive client ID for OAuth authentication (easier without referer restrictions).",
+                    "minLength": 12
+                },
+                "showAdvancedOptions": {
+                    "type": "boolean",
+                    "description": "Whether to show the advanced options form (for public ID and transformation)."
+                },
+                "cropping": {
+                    "type": "boolean",
+                    "description": "Enable client-side cropping functionality."
+                },
+                "showSkipCropButton": {
+                    "type": "boolean",
+                    "description": "Allow users to skip cropping even when cropping is enabled."
+                },
+                "multiple": {
+                    "type": "boolean",
+                    "description": "Allow uploading multiple files in one session."
+                },
+                "maxFiles": {
+                    "type": "number",
+                    "description": "Maximum number of files a user can upload."
+                },
+                "defaultSource": {
+                    "type": "string",
+                    "description": "Initial upload source to be selected by default (e.g., 'local')."
+                },
+                "styles": {
+                    "type": "object",
+                    "description": "Custom style overrides for widget palette and fonts.",
+                    "properties": {
+                        "palette": {
+                            "type": "object",
+                            "description": "Override specific color properties of the widget.",
+                            "properties": {
+                                "window": {
+                                    "type": "string",
+                                    "description": "Background color of the window."
+                                },
+                                "windowBorder": {
+                                    "type": "string",
+                                    "description": "Border color of the window."
+                                },
+                                "tabIcon": {
+                                    "type": "string",
+                                    "description": "Color for active tab icons."
+                                },
+                                "menuIcons": {
+                                    "type": "string",
+                                    "description": "Color for menu icons."
+                                },
+                                "textDark": {
+                                    "type": "string",
+                                    "description": "Color for dark text."
+                                },
+                                "textLight": {
+                                    "type": "string",
+                                    "description": "Color for light text."
+                                },
+                                "link": {
+                                    "type": "string",
+                                    "description": "Link color."
+                                },
+                                "action": {
+                                    "type": "string",
+                                    "description": "Color used for buttons and actions."
+                                },
+                                "inactiveTabIcon": {
+                                    "type": "string",
+                                    "description": "Color for inactive tab icons."
+                                },
+                                "error": {
+                                    "type": "string",
+                                    "description": "Error highlight color."
+                                },
+                                "inProgress": {
+                                    "type": "string",
+                                    "description": "Color shown during uploads."
+                                },
+                                "complete": {
+                                    "type": "string",
+                                    "description": "Success/complete state color."
+                                },
+                                "sourceBg": {
+                                    "type": "string",
+                                    "description": "Background color for the source selector."
+                                }
+                            },
+                            "unevaluatedProperties": true
+                        },
+                        "fonts": {
+                            "type": "object",
+                            "description": "Font configuration for the widget.",
+                            "properties": {
+                                "default": {
+                                    "type": "object",
+                                    "description": "Settings for the default font.",
+                                    "properties": {
+                                        "active": {
+                                            "type": "boolean",
+                                            "description": "Whether to load and use the default font."
+                                        }
+                                    },
+                                    "unevaluatedProperties": true
+                                }
+                            },
+                            "unevaluatedProperties": true
+                        }
+                    },
+                    "unevaluatedProperties": true
+                }
+            }
+        }
+    },
+    "allOf": [
+        {
+            "if": {
+                "properties": {
+                    "upload_widget_config": {
+                        "not": {
+                            "required": [
+                                "sources"
+                            ]
+                        }
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "upload_widget_config": {
+                        "required": [
+                            "googleDriveClientId"
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "upload_widget_config": {
+                        "properties": {
+                            "sources": {
+                                "contains": {
+                                    "const": "google_drive"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "upload_widget_config": {
+                        "required": [
+                            "googleDriveClientId"
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+}

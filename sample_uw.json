@@ -27,6 +27,7 @@
 
         "uploadPreset": "agent-y",
         "sources": ["local", "url", "camera", "google_drive", "dropbox", "shutterstock", "getty", "istock", "unsplash"],
+        "googleDriveClientId": "your_client_key (easier without referer restrictions)",
         "showAdvancedOptions": true,
         "cropping": true,
         "showSkipCropButton": true,
