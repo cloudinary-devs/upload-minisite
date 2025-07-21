@@ -47,7 +47,7 @@ If you’ve included editable_smd in your configuration, you can pass values via
 editable_smd: ['photographer']
 ht<span>tps://upload-minisite.cloudinary.us/\<your environment id\>/photographers?photographer=Jane
 
-**Validating the Configuration Using a JSON Schema**
+#### Validating the Configuration Using a JSON Schema
 
 To ensure consistent and reliable configuration, this repository includes a [JSON Schema](upload-minisite-config.schema.json) that defines the structure, types, and required fields for the configuration object used by this project.
 
