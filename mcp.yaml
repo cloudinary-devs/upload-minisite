@@ -6,7 +6,6 @@ description: |
   The JSON output should be saved and uploaded to Cloudinary
 
 instructions:
-instructions:
   - The output JSON must always include `background_image` and `opengraph_image`.
   - If not provided by the user, suggest values.
   - If an image is not hosted on Cloudinary, instruct the user to upload it.
