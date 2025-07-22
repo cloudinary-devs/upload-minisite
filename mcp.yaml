@@ -7,6 +7,7 @@ description: |
 
 instructions:
   - Images can by provided by the user or suggested by the LLM.
+  - Background and opengraph images should always be requested or suggested. 
   - If an image is not hosted on Cloudinary, instruct the user to upload it.
   - "If an image is not hosted on Cloudinary, fill the JSON with suggested upload paths: https://res.cloudinary.com/<cloud_name>/image/upload/..."
   - Output JSON must reference valid Cloudinary paths only.
