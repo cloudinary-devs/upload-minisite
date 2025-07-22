@@ -13,6 +13,7 @@ instructions:
   - Output JSON must reference valid Cloudinary paths only.
   - Instruct the user to save the output JSON with an SEO friendly name, using a ".json" extension.
   - Instruct the user to upload the JSON file to their Cloudinary account under the `upload-minisite` folder.
+  - The output JSON should be valid according to the schema at `https://github.com/cloudinary-devs/upload-minisite/blob/main/upload-minisite-config.schema.json`.
   - "Give the user a link to the JSON file after upload: `https://res.cloudinary.com/<cloud_name>/upload-minisite/<filename>.json`."
   - "Provide the corresponding minisite URL: `https://upload-minisite.cloudinary.us/<cloud_name>/<filename>`."
 
