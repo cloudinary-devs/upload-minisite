@@ -3,10 +3,10 @@
   "name_for_human": "Upload Minisite",
   "name_for_model": "upload_minisite",
   "description_for_human": "Create and customize media upload minisites powered by Cloudinary.",
-  "description_for_model": "Generate a static upload minisite using a config file (JSON). The config files should be uploaded to Cloudinary under the uploads_minisite folder. Uses Cloudinary's upload widget to handle uploads.",
+  "description_for_model": "Takes natural-language input and generates a JSON configuration for automatic Cloudinary's upload-minisite. Images are supplied by the user or advised by the LLM. If an image is not hosted on Cloudinary, the assistant must instruct the user to upload it and provide a suggested Cloudinary URL. The output JSON must only reference Cloudinary-hosted images and be saved and uploaded under the `upload-minisite` folder in the user's Cloudinary account. The user should save the output JSON with an SEO-friendly name, using a `.json` extension. After uploading, the user will have a link to the JSON file: `https://res.cloudinary.com/<cloud_name>/upload-minisite/<filename>.json`, and the minisite URL will be `https://upload-minisite.cloudinary.us/<cloud_name>/<filename>`.",
   "auth": { "type": "none" },
   "api": { "type": "none" },
   "logo_url": "https://cdn.prod.website-files.com/64d41aab8183c7c3324ddb29/674f5ebd0de31390e6f53218_3-logo-brand-square.svg",
   "contact_email": "support@cloudinary.com",
-  "legal_info_url": "https://github.com/cloudinary-devs/upload-minisite"
+  "legal_info_url": "https://github.com/CloudinarySolutions/upload-minisite-internal"
 }

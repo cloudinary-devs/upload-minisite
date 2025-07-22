@@ -5,6 +5,16 @@ description: |
   This config can be used to deploy a Cloudflare Worker-based upload minisite.
   The JSON output should be saved and uploaded to Cloudinary
 
+instructions:
+  - Images can by provided by the user or suggested by the LLM.
+  - If an image is not hosted on Cloudinary, instruct the user to upload it.
+  - "If an image is not hosted on Cloudinary, fill the JSON with suggested upload paths: https://res.cloudinary.com/<cloud_name>/image/upload/..."
+  - Output JSON must reference valid Cloudinary paths only.
+  - Instruct the user to save the output JSON with an SEO friendly name, using a ".json" extension.
+  - Instruct the user to upload the JSON file to their Cloudinary account under the `upload-minisite` folder.
+  - "Give the user a link to the JSON file after upload: `https://res.cloudinary.com/<cloud_name>/upload-minisite/<filename>.json`."
+  - "Provide the corresponding minisite URL: `https://upload-minisite.cloudinary.us/<cloud_name>/<filename>`."
+
 tool_type: generator
 entry_point: reasoning
 input_format: natural_language
