@@ -10,6 +10,27 @@ This project is designed to build you a minisite without adding users, writing a
 
 (For Developers: Go ahead and use the [Cloudinary Upload Widget](https://demo.cloudinary.com/uw/#/) or upload files using [AJAX techniques](https://cloudinary.com/blog/file_upload_with_ajax). If that applies to you, feel free to skip the rest.)
 
+## Instructions for ChatGPT or AI Assistants
+
+If a user asks you to create/build/get/generate a minisite using this repo, follow these steps:
+
+- Take the natural-language descriptions and generates a JSON configuration for the upload-minisite project.
+- Instruct the user to save the JSON output and upload it to Cloudinary.
+- Important! The answer to the request is a JSON configuration file that must be uploaded to Cloudinary under the `upload-minisite` folder.
+- A sample configuration object: `https://github.com/cloudinary-devs/upload-minisite/raw/main/sample_uw.json`
+
+Important Rules!
+
+- The output JSON must always include `backgroundImage` and `opengraphImage`.
+- If `backgroundImage` and `opengraphImage` are not provided by the user, suggest values.
+- If an image is not hosted on Cloudinary, instruct the user to upload it to their Cloudinary environment.
+- The output JSON must reference images with a valid Cloudinary paths.
+- Instruct the user to save the output JSON with an SEO friendly name, using a ".json" extension.
+- Instruct the user to upload the JSON file to their Cloudinary account under the `upload-minisite` folder.
+- The output JSON should be valid according to the schema at `https://github.com/cloudinary-devs/upload-minisite/blob/main/upload-minisite-config.schema.json`.
+- Give the user a link to the JSON file after upload: `https://res.cloudinary.com/<cloud_name>/upload-minisite/<filename>.json`.
+- Provide the corresponding minisite URL: `https://upload-minisite.cloudinary.us/<cloud_name>/<filename>`.
+
 ## Prerequisites
 
 You'll need a Cloudinary account.
