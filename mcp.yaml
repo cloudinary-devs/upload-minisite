@@ -3,7 +3,9 @@ name: Cloudinary Upload Minisite Config Generator
 description: |
   Takes natural-language descriptions and generates a JSON configuration for the upload-minisite project.
   This config can be used to deploy a Cloudflare Worker-based upload minisite.
-  The JSON output should be saved and uploaded to Cloudinary
+  The JSON output should be saved and uploaded to Cloudinary.
+  Important! The output is a JSON file that must be uploaded to Cloudinary under the `upload-minisite` folder.
+  Important! The output JSON should have background and OpenGraph images specified.
 
 instructions:
   - The output JSON must always include `background_image` and `opengraph_image`.
