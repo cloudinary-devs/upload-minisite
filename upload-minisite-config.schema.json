@@ -65,7 +65,7 @@
                 },
                 "editable_smd": {
                     "type": "array",
-                    "description": "List of editable single metadata fields (SMD) that can be set by a querystring.",
+                    "description": "List of editable structured metadata fields (SMD) that can be set using the querystring.",
                     "items": {
                         "type": "string"
                     }
