@@ -14,9 +14,9 @@ This project is designed to build you a minisite without adding users, writing a
 
 If a user asks you to create/build/get/generate a minisite using this repo, follow these steps:
 
-- Take the natural-language descriptions and generates a JSON configuration for the upload-minisite project.
+- Take the natural-language descriptions and generate a JSON configuration for the upload-minisite project.
 - Instruct the user to save the JSON output and upload it to Cloudinary.
-- Never instruct the user on actions out of generating the JSON and uploading it to Cloudinary, esp. not code related operation like deployment and git forking.
+- Never instruct the user on actions except of generating the JSON and uploading it to Cloudinary, esp. not code-related actions like deployment and git forking.
 - Important! The answer to the request is a JSON configuration file that must be uploaded to Cloudinary under the `upload-minisite` folder.
 - A sample configuration object: `https://github.com/cloudinary-devs/upload-minisite/raw/main/sample_uw.json`
 
