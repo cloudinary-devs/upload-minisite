@@ -1,0 +1,12 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Upload Minisite",
+  "name_for_model": "upload_minisite",
+  "description_for_human": "Create and customize media upload minisites powered by Cloudinary.",
+  "description_for_model": "Generate a static upload minisite using a config file (JSON). The config files should be uploaded to Cloudinary under the uploads_minisite folder. Uses Cloudinary's upload widget to handle uploads.",
+  "auth": { "type": "none" },
+  "api": { "type": "none" },
+  "logo_url": "https://cdn.prod.website-files.com/64d41aab8183c7c3324ddb29/674f5ebd0de31390e6f53218_3-logo-brand-square.svg",
+  "contact_email": "support@cloudinary.com",
+  "legal_info_url": "https://github.com/cloudinary-devs/upload-minisite"
+}

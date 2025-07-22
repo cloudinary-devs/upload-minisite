@@ -1,0 +1,22 @@
+version: 1
+name: Cloudinary Upload Minisite Config Generator
+description: |
+  Takes natural-language descriptions and generates a JSON configuration for the upload-minisite project.
+  This config can be used to deploy a Cloudflare Worker-based upload minisite.
+  The JSON output should be saved and uploaded to Cloudinary
+
+tool_type: generator
+entry_point: reasoning
+input_format: natural_language
+output_format: json
+custom:
+  schema_url: https://github.com/cloudinary-devs/upload-minisite/blob/main/upload-minisite-config.schema.json
+
+output_schema:
+  $schema: https://json-schema.org/draft/2020-12/schema#
+  $ref: https://github.com/cloudinary-devs/upload-minisite/blob/main/upload-minisite-config.schema.json
+
+examples:
+  - input: "Make a minisite for our marketing team. Use my demo cloud, preset is `agent-y`. Add a fun header and company's background from the my Cloudinary account."
+    output:
+      $ref: https://raw.githubusercontent.com/cloudinary-devs/upload-minisite/main/sample_uw.json

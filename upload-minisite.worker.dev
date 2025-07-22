@@ -173,7 +173,7 @@ async function handleRequest(request, env, ctx) {
             if (minisite_config.editable_smd.includes(param[0])){
                 metadata[param[0]] = param[1]
             }
-        }   
+        }
         metadataString = Object.keys(metadata)
                                 .map((key) => `${key}=${sanitizeMetadataValue(metadata[key])}`)
                                 .join('|');
