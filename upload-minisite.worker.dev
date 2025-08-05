@@ -133,6 +133,11 @@ async function getConfig(cloud, urlPath, cname, env, ctx) {
     }
     return JSON.parse(config)
 } // getConfig
+function generateNonce(length = 16) {
+  const array = new Uint8Array(length);
+  crypto.getRandomValues(array);
+  return btoa(String.fromCharCode(...array));
+} // generateNonce
 
 async function handleRequest(request, env, ctx) {
     const { pathname:urlPathName, searchParams } = new URL(request.url)
@@ -192,6 +197,7 @@ async function handleRequest(request, env, ctx) {
     const googleFont = (isGoogleFontUsed(inputGoogleFont, minisiteH1) || isGoogleFontUsed(inputGoogleFont, minisiteH2)) ?
         `<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=${inputGoogleFont}">` :
         ''
+    const nonce = generateNonce()
 
 return new Response(`<!DOCTYPE html>
 <html lang="en">
@@ -227,7 +233,7 @@ p.disclaimer {${minisiteDisclaimer}}
 <div id="upload_widget"></div>
 <p class="disclaimer">${disclaimer}</p>
 </div>
-<script nonce="SkVPttaOdNQClPvv/P/mlg==">
+<script nonce="${nonce}">
 const config = ${JSON.stringify(uw_config)}
 
 ${ metadataString ? `config.prepareUploadParams = (cb, params) => {
@@ -251,7 +257,7 @@ cloudinary.openUploadWidget(config)
                 `default-src 'none'; ` +
                 'connect-src https://www.google-analytics.com https://*.cloudinary.com; ' +
                 `img-src ${CSPcname}https://res.cloudinary.com https://${cloud}-res.cloudinary.com https://cloudinary-marketing-res.cloudinary.com https://upload-widget.cloudinary.com data:; ` +
-                `script-src https://upload-widget.cloudinary.com 'self' 'nonce-SkVPttaOdNQClPvv/P/mlg==' 'unsafe-inline' blob:; ` +
+                `script-src https://upload-widget.cloudinary.com 'self' 'nonce-${nonce}' 'unsafe-inline' blob:; ` +
                 `font-src ${CSPcname}https://res.cloudinary.com https://${cloud}-res.cloudinary.com https://fonts.gstatic.com; style-src 'unsafe-inline' https://fonts.googleapis.com`,
             'link': (background ? `<${background}>; rel="preload"; as="image", ` : '') + ' <https://upload-widget.cloudinary.com/global/all.js>; rel="preload"; as="script", <https://fonts.googleapis.com/>; rel="preconnect", <https://fonts.gstatic.com/>; rel="preconnect"; crossorigin, <https://res-s.cloudinary.com>; rel="preconnect", <https://widget.cloudinary.com>; rel="preconnect"; crossorigin',
             'x-content-type-options': 'nosniff',
